@@ -6,3 +6,6 @@ djangorestframework-simplejwt
 drf_yasg
 pillow
 django-filter
+redis
+celery
+django-celery-beat
