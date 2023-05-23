@@ -9,3 +9,4 @@ django-filter
 redis
 celery
 django-celery-beat
+django-cors-headers
