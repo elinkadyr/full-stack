@@ -39,7 +39,6 @@ class MyUser(AbstractUser):
     is_active = models.BooleanField(default=False)
     activation_code = models.CharField(max_length=10, blank=True)
 
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone']
 
