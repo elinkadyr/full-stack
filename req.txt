@@ -10,3 +10,4 @@ redis
 celery
 django-celery-beat
 django-cors-headers
+drf-writable-nested
