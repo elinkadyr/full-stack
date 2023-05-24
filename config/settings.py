@@ -160,4 +160,6 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379"
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:8000",
 ]
