@@ -1,46 +1,65 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
+from django.db import models
+
 from .tasks import send_activation_code
 
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, phone, **kwargs):
+    def create_user(self, email, password, **kwargs):
         if not email:
             raise ValueError("Email is required")
         email = self.normalize_email(email)
-        user = self.model(email=email, phone=phone, **kwargs)
+        user = self.model(email=email, **kwargs)
         user.set_password(password)  
         user.create_activation_code()
         send_activation_code.delay(user.email, user.activation_code)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, phone, **kwargs):
+    def create_superuser(self, email, password, **kwargs):
         if not email:
             raise ValueError("Email is required")
         kwargs["is_staff"] = True
         kwargs["is_superuser"] = True
         kwargs["is_active"] = True
         email = self.normalize_email(email)
-        user = self.model(email=email, phone=phone, **kwargs)
+        user = self.model(email=email, **kwargs)
         user.set_password(password) 
         user.save(using=self._db)
         return user
 
 
 class MyUser(AbstractUser):
-    username = None  
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=50)
-    bio = models.TextField()
-    is_active = models.BooleanField(default=False)
-    activation_code = models.CharField(max_length=10, blank=True)
+    username = None  # юзернейм отключен
+    email = models.EmailField(unique=True) # Поле для почты
+    name = models.CharField(max_length=100)  # Поле для имени
+    last_name = models.CharField(max_length=100) # Поле для фамилии
+    phone = models.CharField(max_length=50, blank=True, null=True) # Поле для телефона
+    bio = models.TextField(max_length=500, blank=True, null=True)  # Поле биографии
+    date_of_birth = models.DateField(null=True)  # Поле даты рождения
+    programming_language = models.CharField(max_length=50, choices=[('javascript', 'JavaScript'), 
+                                                    ('python', 'Python')])  # Поле языка программирования
+    group = models.CharField(max_length=50, choices=[('JS 31', 'JS 31'), ('PY 27', 'PY 27')], default='default')  # Поле группы
+    social_media_link = ArrayField(models.URLField(), blank=True, default=list)  # Массив ссылок на социальные сети
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, default='avatars/default.jpg') # Поле для аватарки
+    is_active = models.BooleanField(default=False) # обязательная активация через почту
+    activation_code = models.CharField(max_length=10, blank=True) # отправка активационного кода
 
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
+    def __str__(self) -> str:
+        return f'Профиль {self.email}'
+    
+    
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone']
+    REQUIRED_FIELDS = ['name', 'last_name', ]
 
     objects = UserManager()
 
@@ -49,5 +68,6 @@ class MyUser(AbstractUser):
         code = get_random_string(length=10) 
         self.activation_code = code
         self.save()
-  
-    
+
+
+

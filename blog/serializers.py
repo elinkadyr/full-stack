@@ -3,7 +3,6 @@ from rest_framework.serializers import ModelSerializer
 from .models import Post, Comment
 
 
-
 class PostSerializer(ModelSerializer):
     class Meta:
         model = Post
@@ -11,7 +10,6 @@ class PostSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep['likes'] = instance.likes.all().count()
         comments = instance.comments.all()
         rep['comments'] = CommentSerializer(comments, many=True).data
         return rep

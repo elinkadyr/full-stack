@@ -1,14 +1,18 @@
 from django.shortcuts import get_object_or_404, redirect
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import TokenRefreshView
+
 
 from .models import MyUser
-from .serializers import ProfileSerializer, RegisterUserSerializer
+from .permissions import IsAuthorOrReadOnly
+from .serializers import RegisterUserSerializer, ProfileSerializer
 
 
 class RegisterUserView(APIView):
@@ -41,9 +45,29 @@ class LogoutView(APIView):
                 return Response({'detail': 'Недействительный токен аутентификации или истек срок действия.'}, status=400)
         return Response({'detail': 'Вы успешно вышли из системы.'}, status=200)
 
-    
 
-class ProfileViewSet(ModelViewSet):
+
+"""вьюшка для профиля пользователя"""
+class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = MyUser.objects.all()
     serializer_class = ProfileSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+    parser_classes = [MultiPartParser]
 
+    def get_object(self):
+        if self.action == 'me':
+            user = self.request.user
+        else:
+            user_id = self.kwargs['id']
+            user = MyUser.objects.get(pk=user_id)
+        self.check_object_permissions(self.request, user)
+        return user
+
+    @action(["put", "patch", "delete"], detail=False)
+    def me(self, request, *args, **kwargs):
+        if request.method == "PUT":
+            return self.update(request, *args, **kwargs)
+        elif request.method == "PATCH":
+            return self.partial_update(request, *args, **kwargs)
+        elif request.method == "DELETE":
+            return self.destroy(request, *args, **kwargs)

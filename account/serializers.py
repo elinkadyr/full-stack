@@ -8,7 +8,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MyUser
-        fields = ('email', 'password', 'password_confirm', 'phone')
+        fields = ('name', 'last_name', 'email', 'password', 'password_confirm', )
 
     def validate(self, attrs):
         pass1 = attrs.get("password")
@@ -29,6 +29,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = ("id", "email", "phone", "bio")
+        fields = ("id", "email", "name", "last_name", "bio", "phone", "date_of_birth", 
+                  "programming_language", "group", "social_media_link", "avatar")
 
 

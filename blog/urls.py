@@ -7,8 +7,6 @@ router.register('post', PostViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('post-like/<int:id>', toggle_like),
-    path('comment/create/', CreateCommentAPIView.as_view()),
-    path('comment/update/<int:pk>/', UpdateCommentAPIView.as_view()),
-    path('comment/delete/<int:pk>/', DeleteCommentAPIView.as_view()),
+    path('post/comment/', CommentAPIView.as_view()),
+    path('post/comment/<int:id>', DeleteCommentAPIView.as_view()),
 ]
