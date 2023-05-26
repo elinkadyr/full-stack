@@ -41,13 +41,6 @@ class Product(models.Model):
     quantity = models.IntegerField()
     image1 = models.ImageField(upload_to='shop/', null=True, blank=True)
     image2 = models.ImageField(upload_to='shop/', null=True, blank=True)
-    image3 = models.ImageField(upload_to='shop/', null=True, blank=True)
-    image4 = models.ImageField(upload_to='shop/', null=True, blank=True)
-    image5 = models.ImageField(upload_to='shop/', null=True, blank=True)
-
+    
     def __str__(self):
         return self.title
-
-
-
-

@@ -9,10 +9,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
 
-
 from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
-from .serializers import RegisterUserSerializer, ProfileSerializer
+from .serializers import ProfileSerializer, RegisterUserSerializer
 
 
 class RegisterUserView(APIView):
@@ -63,9 +62,11 @@ class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         self.check_object_permissions(self.request, user)
         return user
 
-    @action(["put", "patch", "delete"], detail=False)
+    @action(["get", "put", "patch", "delete"], detail=False)
     def me(self, request, *args, **kwargs):
-        if request.method == "PUT":
+        if request.method == "GET":
+            return self.retrieve(request, *args, **kwargs)
+        elif request.method == "PUT":
             return self.update(request, *args, **kwargs)
         elif request.method == "PATCH":
             return self.partial_update(request, *args, **kwargs)
