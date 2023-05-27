@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404, redirect
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,7 +13,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
-from .serializers import ProfileSerializer, RegisterUserSerializer
+from .serializers import (MyUserSerializer, ProfileSerializer,
+                          RegisterUserSerializer)
 
 
 class RegisterUserView(APIView):
@@ -47,7 +50,10 @@ class LogoutView(APIView):
 
 
 """вьюшка для профиля пользователя"""
-class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class ProfileViewSet(mixins.RetrieveModelMixin, 
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin, 
+                     viewsets.GenericViewSet):
     queryset = MyUser.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthorOrReadOnly]
@@ -72,3 +78,14 @@ class ProfileViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
             return self.partial_update(request, *args, **kwargs)
         elif request.method == "DELETE":
             return self.destroy(request, *args, **kwargs)
+
+
+class UserListAPIView(APIView):
+    filter_backends = (SearchFilter, DjangoFilterBackend)
+    filterset_fields = ('group', 'programming_language', )
+    search_fields = ('name', 'last_name', )
+    
+    def get(self, request):
+        users = MyUser.objects.all()
+        serializer = MyUserSerializer(users, many=True)
+        return Response(serializer.data)

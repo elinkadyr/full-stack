@@ -33,3 +33,8 @@ class ProfileSerializer(serializers.ModelSerializer):
                   "programming_language", "group", "social_media_link", "avatar")
 
 
+class MyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields = ['id', 'email', 'avatar', 'name', 'last_name']
+
