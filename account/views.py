@@ -81,10 +81,6 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
 
 
 class UserListAPIView(APIView):
-    filter_backends = (SearchFilter, DjangoFilterBackend)
-    filterset_fields = ('group', 'programming_language', )
-    search_fields = ('name', 'last_name', )
-    
     def get(self, request):
         users = MyUser.objects.all()
         serializer = MyUserSerializer(users, many=True)
