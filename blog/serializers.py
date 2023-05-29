@@ -6,20 +6,17 @@ from .models import Post, Comment, Like
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ('id', 'user', 'title', 'body', 'image', 'created_at')
 
     def to_representation(self, instance:Post):
         rep = super().to_representation(instance)
         comments = Comment.objects.filter(post=instance)
-        rep['post_comments'] = CommentSerializer(comments, many=True).data
+        rep["post_comments"] = CommentSerializer(comments, many=True).data
         rep["likes"] = instance.likes.all().count()
         rep["liked_by_user"] = False
-
         request = self.context.get("request")
-
-        if request.user.is_authenticated:
+        if request and request.user.is_authenticated:
             rep["liked_by_user"] = Like.objects.filter(user=request.user, post=instance).exists()
-
         return rep
 
 
