@@ -30,30 +30,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         return MyUser.objects.create_user(**validated_data)
 
 
-"""сериализатор для отображения профиля пользователя"""
-# class ProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = MyUser
-#         fields = ("id", 
-#                   "email", 
-#                   "name", 
-#                   "last_name", 
-#                   "bio", 
-#                   "phone", 
-#                   "date_of_birth", 
-#                   "programming_language", 
-#                   "group", 
-#                   "social_media_link", 
-#                   "avatar", 
-#                   "posts")
-        
-#     def to_representation(self, instance:MyUser):
-#         rep = super().to_representation(instance)
-#         request = self.context.get("request")
-#         posts = Post.objects.filter(user=request.user, post=instance.id)
-#         rep['posts'] = PostSerializer(posts, many=True).data
-#         return rep
-                
+"""сериализатор для отображения профиля пользователя"""                 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
