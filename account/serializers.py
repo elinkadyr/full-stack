@@ -1,10 +1,9 @@
-from rest_framework import serializers  
-from drf_yasg.utils import swagger_serializer_method
-from .models import MyUser
+from rest_framework import serializers
 
-from blog.serializers import PostSerializer
 from blog.models import Post
+from blog.serializers import PostSerializer
 
+from .models import MyUser
 
 """сериализатор для регистрации пользователя"""
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -47,11 +46,35 @@ class ProfileSerializer(serializers.ModelSerializer):
                   "avatar", 
                   "posts")
         
+
     def to_representation(self, instance):
         rep= super().to_representation(instance)
         posts = Post.objects.filter(user=instance.id)
         rep["posts"] = PostSerializer(posts, many=True).data
         return rep
+
+"""
+Внутри метода to_representation() выполняются следующие действия:
+
+    Вызывается метод to_representation() базового класса,
+        чтобы получить представление экземпляра модели по умолчанию.
+
+    Создается переменная posts, которая содержит все объекты модели Post, 
+        связанные с указанным пользователем (user=instance.id).
+
+    Создается новый ключ "posts" в словаре rep, 
+        и в качестве значения устанавливается 
+        сериализованное представление всех постов (PostSerializer(posts, many=True).data).
+
+    Возвращается обновленное представление экземпляра модели rep.
+
+Этот код добавляет сериализованное представление всех постов, 
+связанных с указанным пользователем, в представление экземпляра модели. 
+    Таким образом, при сериализации экземпляра модели, 
+    возвращается словарь с данными экземпляра и дополнительным ключом "posts", 
+    содержащим сериализованное представление всех постов пользователя. 
+"""
+
 
 
 """сериализатор для отображения всех пользователей"""

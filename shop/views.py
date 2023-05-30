@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Category, Comment, Product
+from .models import Category, Product, Comment, Rating, Favorite
 from .permissions import IsAuthor
 from .serializers import (CategorySerializer, 
                           ProductSerializer,
@@ -84,16 +84,36 @@ class AddRatingAPIView(APIView):
         serializer = RatingSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
 
-        rating_instance = serializer.instance
+        user = request.user
+        product = serializer.validated_data["product"]
         rating_value = serializer.validated_data["value"]
 
-        if rating_instance is not None and rating_instance.value != rating_value:
-            message = "рейтинг изменен"
-        else:
-            message = "рейтинг создан"
+        try:
+            rating_instance = Rating.objects.get(user=user, product=product)
+            if rating_instance.value != rating_value:
+                message = "Рейтинг изменен"
+            else:
+                message = "Рейтинг уже существует"
+        except Rating.DoesNotExist:
+            message = "Рейтинг создан"
 
-
-        serializer.save()
+        serializer.save(user=user)
 
         return Response({"message": message}, status=201)
+
     
+
+"""добавлять продукты в избранное"""
+class AddFavoriteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        product = Product.objects.get(pk=pk)
+        favor = Favorite.objects.filter(user=request.user, product=product)
+        if favor.exists():
+            favor.delete()
+            favor = False
+        else:
+            Favorite.objects.create(user=request.user, product=product)
+            favor = True
+        return Response({'In Favorite': favor}, status=200)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, Product, Rating
+from .models import Category, Product, Rating, Favorite
 from .comment_serializer import CommentSerializer
 
 """сериализатор для комментариев в отдельном файле .comment_serializer.py"""
@@ -53,3 +53,12 @@ class RatingSerializer(serializers.ModelSerializer):
         value = validated_data.pop("value")
         obj, created = Rating.objects.update_or_create(**validated_data, defaults={"value": value})
         return obj
+
+
+"""сериализатор для избранного"""
+class FavoriteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.email')
+
+    class Meta:
+        model = Favorite
+        fields = ('user', 'product')

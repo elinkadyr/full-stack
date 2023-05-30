@@ -8,7 +8,7 @@ class Category(models.Model):
     title = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.title
+        return f'{self.id}   ->  {self.title}'
 
 '''модель для продуктов'''
 class Product(models.Model):
@@ -46,7 +46,7 @@ class Product(models.Model):
     image2 = models.ImageField(upload_to='shop/', null=True, blank=True) # фоточка 2
     
     def __str__(self):
-        return self.title
+        return f'{self.id} -> {self.title}'
 
     @property
     def get_average_rating(self):
@@ -76,3 +76,15 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"<{self.product}> rated by <{self.user.email}>"
+    
+
+"""модель для избранного для продуктов"""
+class Favorite(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='favorites')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorites')
+
+    class Meta:
+        unique_together = ('user', 'product')
+
+    def __str__(self):
+        return f'<{self.product.title}> added to favorites by {self.user.email}'

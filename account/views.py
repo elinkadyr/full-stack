@@ -1,9 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,10 +11,12 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (MyUserSerializer, ProfileSerializer,
-                          RegisterUserSerializer)
+from .serializers import (RegisterUserSerializer,
+                          ProfileSerializer,
+                          MyUserSerializer)
 
 
+"""вьюшкак для регистрации аккаунта"""
 class RegisterUserView(APIView):
     @swagger_auto_schema(request_body=RegisterUserSerializer())
     def post(self, request):
@@ -26,6 +26,7 @@ class RegisterUserView(APIView):
         return Response("Вы успешно зарегистрировались", status=201)
 
 
+"""вьюшка для активации аккаунта после регистрации"""
 class ActivateView(APIView):
     def get(self, request, activation_code):
         user = get_object_or_404(MyUser, activation_code=activation_code)
@@ -35,6 +36,7 @@ class ActivateView(APIView):
         return redirect("http://34.125.13.20/")
 
 
+"""вьюшка для логоута"""
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -80,6 +82,7 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
             return self.destroy(request, *args, **kwargs)
 
 
+"""вьюшка для листинга всех профилей"""
 class UserListAPIView(APIView):
     def get(self, request):
         users = MyUser.objects.all()

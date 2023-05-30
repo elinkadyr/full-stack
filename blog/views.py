@@ -52,10 +52,12 @@ class CommentViewSet(mixins.CreateModelMixin,
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def toggle_like(request, p_id):
-    user = request.user
     post = get_object_or_404(Post, id=p_id)
-    if Like.objects.filter(user=user, post=post).exists():
-        Like.objects.filter(user=user, post=post).delete()
+    like = Like.objects.filter(user=request.user, post=post)
+    if like.exists():
+        like.delete()
+        like = False
     else:
-        Like.objects.create(user=user, post=post)
-    return Response("Like toggled", status=200)
+        Like.objects.create(user=request.user, post=post)
+        like = True
+    return Response({"Liked": like}, status=200)

@@ -8,7 +8,8 @@ from .views import (CategoryListCreateAPIView,
                     ProductCreateAPIView,
                     ProductUpdateDestroyAPIView,
                     CommentViewSet, 
-                    AddRatingAPIView)
+                    AddRatingAPIView,
+                    AddFavoriteAPIView)
 
 
 router = DefaultRouter()
@@ -23,4 +24,5 @@ urlpatterns = [
     path('products/', ProductCreateAPIView.as_view(), name='product-create'),
     path('products/<int:pk>/', ProductUpdateDestroyAPIView.as_view(), name='product-update-destroy'),
     path('products/add_rating/', AddRatingAPIView.as_view()),
+    path('products/add_favorite/<int:pk>/', AddFavoriteAPIView.as_view()),
 ]
