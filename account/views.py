@@ -1,6 +1,10 @@
 from django.shortcuts import get_object_or_404, redirect
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, viewsets
+from rest_framework import (filters, 
+                            generics, 
+                            mixins, 
+                            viewsets)
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -11,12 +15,12 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (RegisterUserSerializer,
+from .serializers import (MyUserSerializer, 
                           ProfileSerializer,
-                          MyUserSerializer)
+                          RegisterUserSerializer)
 
 
-"""вьюшкак для регистрации аккаунта"""
+"""вьюшка для регистрации аккаунта"""
 class RegisterUserView(APIView):
     @swagger_auto_schema(request_body=RegisterUserSerializer())
     def post(self, request):
@@ -33,7 +37,7 @@ class ActivateView(APIView):
         user.is_active = True
         user.activation_code = ''
         user.save()
-        return redirect("http://34.125.13.20/")
+        return redirect("http://127.0.0.1:3000")
 
 
 """вьюшка для логоута"""
@@ -48,7 +52,6 @@ class LogoutView(APIView):
             except TokenError:
                 return Response({'detail': 'Недействительный токен аутентификации или истек срок действия.'}, status=400)
         return Response({'detail': 'Вы успешно вышли из системы.'}, status=200)
-
 
 
 """вьюшка для профиля пользователя"""
@@ -82,9 +85,11 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
             return self.destroy(request, *args, **kwargs)
 
 
-"""вьюшка для листинга всех профилей"""
-class UserListAPIView(APIView):
-    def get(self, request):
-        users = MyUser.objects.all()
-        serializer = MyUserSerializer(users, many=True)
-        return Response(serializer.data)
+"""вьюшка для листинга всех профилей + поиск по имени фамилии + фильтрация по языку"""
+class UserListAPIView(generics.ListAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = MyUserSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['name', 'last_name']
+    filterset_fields = ['programming_language']
+

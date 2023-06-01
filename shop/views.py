@@ -10,7 +10,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Category, Product, Comment, Rating, Favorite
+from .models import (Category, 
+                     Product, 
+                     Comment, 
+                     Rating, 
+                     Favorite)
 from .permissions import IsAuthor
 from .serializers import (CategorySerializer, 
                           ProductSerializer,
@@ -23,7 +27,7 @@ class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = (SearchFilter, DjangoFilterBackend)
-    filterset_fields = ('size', 'color', 'gender', )
+    filterset_fields = ('category', 'size', 'color', 'gender', )
     search_fields = ('title', 'description', )
 
 

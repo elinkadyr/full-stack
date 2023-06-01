@@ -20,9 +20,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'category', 'title', 'description', 'price', 'size', 
-                'color', 'gender', 'quantity', 'image1', 'image2', 'product_comments', 
-                'ratings', 'user_rating')
+        fields = ('id', 
+                  'category', 
+                  'title', 
+                  'description', 
+                  'price', 
+                  'size', 
+                  'color', 
+                  'gender', 
+                  'quantity', 
+                  'image1', 
+                  'image2', 
+                  'product_comments', 
+                  'ratings', 
+                  'user_rating')
 
     def get_ratings(self, instance):
         return instance.get_average_rating
@@ -61,4 +72,4 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = ('user', 'product')
+        fields = ('user', 'product')   

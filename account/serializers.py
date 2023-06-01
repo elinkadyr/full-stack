@@ -5,6 +5,7 @@ from blog.serializers import PostSerializer
 
 from .models import MyUser
 
+
 """сериализатор для регистрации пользователя"""
 class RegisterUserSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(min_length=4, required=True)
@@ -85,5 +86,6 @@ class MyUserSerializer(serializers.ModelSerializer):
                   'email', 
                   'avatar', 
                   'name', 
-                  'last_name')
+                  'last_name',
+                  'programming_language')
 

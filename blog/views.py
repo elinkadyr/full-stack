@@ -1,16 +1,22 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins
+from rest_framework import generics, mixins
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import (AllowAny, 
-                                        IsAuthenticated)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Post, Comment, Like
+from .models import Comment, Like, Post
 from .permissions import IsAuthor
 from .serializers import PostSerializer, CommentSerializer
+
+
+"""отдельная пагинация для постов"""
+class PostsPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 """листинг всех постов"""
@@ -18,6 +24,7 @@ class PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [AllowAny]
+    pagination_class = PostsPagination
 
 
 """листинг поста по id"""

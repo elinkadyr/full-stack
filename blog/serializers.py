@@ -3,10 +3,16 @@ from rest_framework import serializers
 from .models import Post, Comment, Like
 
 
+"""сериализатор для постов"""
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ('id', 'user', 'title', 'body', 'image', 'created_at')
+        fields = ('id', 
+                  'user', 
+                  'title', 
+                  'body', 
+                  'image', 
+                  'created_at')
 
     def to_representation(self, instance:Post):
         rep = super().to_representation(instance)
@@ -20,6 +26,7 @@ class PostSerializer(serializers.ModelSerializer):
         return rep
 
 
+"""сериализатор для комментариев для постов"""
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -33,5 +40,7 @@ class CommentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         rep  = super().to_representation(instance)
         rep['user'] = instance.user.email
+        rep['name'] = instance.user.name
+        rep['avatar'] = instance.user.avatar.url      
         return rep
 
