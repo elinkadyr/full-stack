@@ -37,7 +37,7 @@ class ActivateView(APIView):
         user.is_active = True
         user.activation_code = ''
         user.save()
-        return redirect("http://127.0.0.1:3000")
+        return redirect("http://localhost:3000/login")
 
 
 """вьюшка для логоута"""
