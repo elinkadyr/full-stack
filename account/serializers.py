@@ -45,8 +45,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                   "programming_language", 
                   "group", 
                   "social_media_link", 
-                  "avatar", 
-                  "posts")
+                  "avatar",)
         
 
     def to_representation(self, instance):
