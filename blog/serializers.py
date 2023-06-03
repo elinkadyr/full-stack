@@ -8,14 +8,14 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 
-                  'title', 
+                  'title',
                   'body', 
                   'image', 
-                  'created_at',)
+                  'created_at',
+                  'user',)
                   
     def to_representation(self, instance:Post):
         rep = super().to_representation(instance)
-        rep['user'] = instance.user.id
         rep['name'] = instance.user.name
         rep['last_name'] = instance.user.last_name
         rep['avatar'] = instance.user.avatar.url      
