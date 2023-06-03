@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Post, Comment, Like
+from .models import Post, Comment, Like, Favorite
 
 
 """сериализатор для постов"""
@@ -47,3 +47,11 @@ class CommentSerializer(serializers.ModelSerializer):
         rep['avatar'] = instance.user.avatar.url      
         return rep
 
+
+"""сериализатор для избранного для постов"""
+class FavoriteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.email')
+
+    class Meta:
+        model = Favorite
+        fields = ('user', 'post')   

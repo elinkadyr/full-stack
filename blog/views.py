@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Comment, Like, Post
+from .models import Post, Comment, Like, Favorite
 from .permissions import IsAuthor
 from .serializers import PostSerializer, CommentSerializer
 
@@ -68,3 +68,19 @@ def toggle_like(request, p_id):
         Like.objects.create(user=request.user, post=post)
         like = True
     return Response({"Liked": like}, status=200)
+
+
+"""добавлять посты в избранное"""
+class PostAddFavoriteAPIView(views.APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        favor = Favorite.objects.filter(user=request.user, post=post)
+        if favor.exists():
+            favor.delete()
+            favor = False
+        else:
+            Favorite.objects.create(user=request.user, post=post)
+            favor = True
+        return Response({'In Favorite': favor}, status=200)

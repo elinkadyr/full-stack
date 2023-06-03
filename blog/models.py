@@ -31,3 +31,15 @@ class Like(models.Model):
 
     def __str__(self):
         return f"post <{self.post.title}> liked by <{self.user.email}>"
+    
+
+"""модель для избранного для постов"""
+class Favorite(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='post_favorites')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_favorites')
+
+    class Meta:
+        unique_together = ('user', 'post')
+
+    def __str__(self):
+        return f'<{self.post.title}> added to favorites by {self.user.email}'
