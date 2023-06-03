@@ -85,11 +85,11 @@ class ProfileViewSet(mixins.RetrieveModelMixin,
             return self.destroy(request, *args, **kwargs)
 
 
-"""вьюшка для листинга всех профилей + поиск по имени фамилии + фильтрация по языку"""
+"""вьюшка для листинга всех профилей + поиск по имени фамилии + фильтрация по языку и по группе"""
 class UserListAPIView(generics.ListAPIView):
     queryset = MyUser.objects.all()
     serializer_class = MyUserSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'last_name']
-    filterset_fields = ['programming_language']
+    filterset_fields = ['programming_language', 'group']
 

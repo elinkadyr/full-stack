@@ -33,6 +33,7 @@ class UserManager(BaseUserManager):
         return user
 
 
+
 class MyUser(AbstractUser):
     username = None  # юзернейм отключен
     email = models.EmailField(unique=True) # Поле для почты
@@ -44,6 +45,7 @@ class MyUser(AbstractUser):
     programming_language = models.CharField(max_length=50, choices=[('javascript', 'JavaScript'), 
                                                     ('python', 'Python')])  # Поле языка программирования
     group = models.CharField(max_length=50, choices=[('JS 31', 'JS 31'), ('PY 27', 'PY 27')])  # Поле группы
+    status = models.CharField(max_length=50, choices=[('student', 'student'), ('mentor', 'mentor')], null=True)
     social_media_link = ArrayField(models.URLField(), null=True, blank=True)  # Массив ссылок на социальные сети
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, default='avatars/default.jpg') # Поле для аватарки
     is_active = models.BooleanField(default=False) # обязательная активация через почту

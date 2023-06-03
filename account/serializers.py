@@ -39,6 +39,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                   "name", 
                   "last_name", 
                   "bio", 
+                  "status",
                   "phone", 
                   "date_of_birth", 
                   "programming_language", 
@@ -87,5 +88,7 @@ class MyUserSerializer(serializers.ModelSerializer):
                   'avatar', 
                   'name', 
                   'last_name',
-                  'programming_language')
+                  'programming_language',
+                  'group',
+                  'status')
 
