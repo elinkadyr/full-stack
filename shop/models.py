@@ -3,14 +3,16 @@ from statistics import mean
 
 from account.models import MyUser
 
-"""модель для категории"""
+
+"""модель для категории продуктов"""
 class Category(models.Model):
     title = models.CharField(max_length=50)
 
     def __str__(self):
         return f'{self.id}   ->  {self.title}'
 
-'''модель для продуктов'''
+
+"""модель для продуктов"""
 class Product(models.Model):
     SIZE_CHOICES = [
         ('s', 'small'),
@@ -56,7 +58,7 @@ class Product(models.Model):
         return 0
 
 
-"""модель для комментариев"""
+"""модель для комментариев к продуктам"""
 class Comment(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='product_comments')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_comments')

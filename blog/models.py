@@ -3,6 +3,7 @@ from django.db import models
 from account.models import MyUser
 
 
+"""модель для постов"""
 class Post(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='posts')
     title = models.CharField(max_length=100)
@@ -14,6 +15,7 @@ class Post(models.Model):
         return f"{self.id} -> {self.title}"
 
 
+"""модель для комментариев на посты"""
 class Comment(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='post_comments')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_comments')
@@ -25,6 +27,7 @@ class Comment(models.Model):
         return f"post <{self.post.title}> commented by <{self.user.email}>"
 
 
+"""модель для лайков на посты"""
 class Like(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='likes')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')

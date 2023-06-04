@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Comment
 
 
-"""сериализатор для комментариев"""
+"""сериализатор для комментариев к продуктам"""
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment

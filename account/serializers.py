@@ -5,7 +5,7 @@ from rest_framework import serializers
 from blog.models import Post, Favorite
 from blog.serializers import PostSerializer, FavoriteSerializer
 
-from .models import MyUser
+from .models import MyUser, Billing
 
 """сериализатор для регистрации пользователя"""
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -143,3 +143,10 @@ class ResetPasswordSerializer(CheckTokenSerializer):
         if new_password1 != new_password2:
             raise serializers.ValidationError("The two password fields didn't match.")
         return new_password2
+    
+
+"""сериализатор для чего то"""
+class BillingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Billing
+        fields = ("amount",)

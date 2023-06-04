@@ -49,7 +49,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return 0
 
 
-"""сериализатор длля рейтинга"""
+"""сериализатор рейтинга для продуктов"""
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
@@ -66,7 +66,7 @@ class RatingSerializer(serializers.ModelSerializer):
         return obj
 
 
-"""сериализатор для избранного"""
+"""сериализатор избранного для продуктов"""
 class FavoriteSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.email')
 

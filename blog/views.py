@@ -19,7 +19,7 @@ class PostsPagination(PageNumberPagination):
     max_page_size = 100
 
 
-"""листинг всех постов"""
+"""листинг всех постов для всех юзеров"""
 class PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -27,7 +27,7 @@ class PostListAPIView(generics.ListAPIView):
     pagination_class = PostsPagination
 
 
-"""листинг поста по id"""
+"""листинг поста по id для всех юзеров"""
 class PostRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -55,7 +55,7 @@ class CommentViewSet(mixins.CreateModelMixin,
     permission_classes = [IsAuthenticated, IsAuthor]
 
 
-"""пользователь ставит лайки на посты """
+"""авторизированный юзер ставит лайки на посты """
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def toggle_like(request, p_id):
@@ -70,7 +70,7 @@ def toggle_like(request, p_id):
     return Response({"Liked": like}, status=200)
 
 
-"""добавлять посты в избранное"""
+"""авторизированный юзер добавляет посты в избранное"""
 class PostAddFavoriteAPIView(views.APIView):
     permission_classes = [IsAuthenticated]
     

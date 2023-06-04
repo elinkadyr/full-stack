@@ -4,8 +4,9 @@ from rest_framework import generics
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import mixins
 from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                         IsAuthenticated)
+from rest_framework.permissions import (AllowAny,
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
@@ -22,29 +23,30 @@ from .serializers import (CategorySerializer,
 from .comment_serializer import CommentSerializer
 
 
-"""листинг всех товаров"""
+"""вьюшка для листинга всех продуктов + фильтрация по категории, размеру, цвету, гендеру + поиск по названию и описанию"""
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
     filter_backends = (SearchFilter, DjangoFilterBackend)
     filterset_fields = ('category', 'size', 'color', 'gender', )
     search_fields = ('title', 'description', )
 
 
-"""листинг товара по id"""
+"""вьюшка для листинга продукта по id"""
 class ProductRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
 
-
-"""создание товара"""
+"""вьюшка для создания продукта"""
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     parser_classes = [MultiPartParser]
 
 
-"""обновление и удаление товара по id"""
+"""вьюшка для обновления и удаления продукта по id"""
 class ProductUpdateDestroyAPIView(generics.UpdateAPIView,
                                   generics.DestroyAPIView):
     queryset = Product.objects.all()
@@ -52,19 +54,19 @@ class ProductUpdateDestroyAPIView(generics.UpdateAPIView,
     parser_classes = [MultiPartParser]
 
 
-"""создание и просмотр категорий"""
+"""вьюшка для создания и просмотра категорий"""
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-"""удаление категории"""
+"""вьюшка для удаления категорий"""
 class CategoryDestroyAPIView(generics.DestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-"""crud для комментариев"""
+"""вьюшяка для crudа комментариев"""
 class CommentViewSet(mixins.CreateModelMixin,
                      mixins.UpdateModelMixin,
                      mixins.DestroyModelMixin,
@@ -79,7 +81,7 @@ class CommentViewSet(mixins.CreateModelMixin,
         return context
 
 
-"""рейтинг для продуктов"""
+"""вьюшка для рейтинга для продуктов"""
 class AddRatingAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -107,7 +109,7 @@ class AddRatingAPIView(APIView):
 
     
 
-"""добавлять продукты в избранное"""
+"""вьюшка для добавления продукта в избранное"""
 class AddFavoriteAPIView(APIView):
     permission_classes = [IsAuthenticated]
     

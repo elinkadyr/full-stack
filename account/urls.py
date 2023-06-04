@@ -7,7 +7,8 @@ from .views import (RegisterUserView,
                     ProfileViewSet, 
                     UserListAPIView,
                     ForgotPasswordView,
-                    ResetPasswordView)
+                    ResetPasswordView, 
+                    TopUpBillingView)
 
 
 urlpatterns = [    
@@ -21,5 +22,6 @@ urlpatterns = [
     path('profiles/', UserListAPIView.as_view(), name='user-listing'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
     path('reset-password/<str:uid>/<str:token>/', ResetPasswordView.as_view(), name='reset_password'),
+    path('billing/top-up/', TopUpBillingView.as_view()),
 ]
 

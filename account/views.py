@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
@@ -16,8 +18,9 @@ from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (ForgotPasswordSerializer, MyUserSerializer,
                           ProfileSerializer, RegisterUserSerializer,
-                          ResetPasswordSerializer)
+                          ResetPasswordSerializer, BillingSerializer)
 from .tasks import send_email_to_reset_password
+
 
 """вьюшка для регистрации аккаунта"""
 class RegisterUserView(APIView):
@@ -92,6 +95,8 @@ class UserListAPIView(generics.ListAPIView):
     search_fields = ['name', 'last_name']
     filterset_fields = ['programming_language', 'group']
 
+
+"""вьюшка для получения ссылки на сброс пароля"""
 class ForgotPasswordView(APIView): 
     @swagger_auto_schema(request_body=ForgotPasswordSerializer())
     def post(self, request, format=None):
@@ -120,6 +125,7 @@ class ForgotPasswordView(APIView):
             return Response(data, status=response_status)
 
 
+"""вьюшка когда после перехода по ссылке, устанавливаешь новый пароль"""
 class ResetPasswordView(APIView):
     @swagger_auto_schema(request_body=ResetPasswordSerializer())
     def post(self, request, uid, token, format=None):
@@ -148,3 +154,22 @@ class ResetPasswordView(APIView):
             error_message = "Invalid Link."
             return Response({"error": True, "errors": error_message})
 
+
+"""вьюшка для чего то"""
+class TopUpBillingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(request_body=BillingSerializer())
+    def post(self, request):
+        amount = request.data.get("amount")
+        if not amount:
+            return Response("amount is required", status=400)
+        try:
+            amount = Decimal(amount)
+        except InvalidOperation:
+            return Response("invalid amount", status=400)
+        billing = request.user.billing
+        if billing.top_up(amount):
+            return Response(status=200)
+        return Response("invalid amount", status=400)
+    
