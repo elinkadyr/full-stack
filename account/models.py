@@ -8,7 +8,7 @@ from .tasks import send_activation_code
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
-
+    
     def create_user(self, email, password, **kwargs):
         if not email:
             raise ValueError("Email is required")

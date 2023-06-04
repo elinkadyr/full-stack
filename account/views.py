@@ -1,10 +1,9 @@
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import (filters, 
-                            generics, 
-                            mixins, 
-                            viewsets)
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -15,10 +14,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import MyUser
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (MyUserSerializer, 
-                          ProfileSerializer,
-                          RegisterUserSerializer)
-
+from .serializers import (ForgotPasswordSerializer, MyUserSerializer,
+                          ProfileSerializer, RegisterUserSerializer,
+                          ResetPasswordSerializer)
+from .tasks import send_email_to_reset_password
 
 """вьюшка для регистрации аккаунта"""
 class RegisterUserView(APIView):
@@ -92,4 +91,60 @@ class UserListAPIView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'last_name']
     filterset_fields = ['programming_language', 'group']
+
+class ForgotPasswordView(APIView): 
+    @swagger_auto_schema(request_body=ForgotPasswordSerializer())
+    def post(self, request, format=None):
+        params = request.data
+        serializer = ForgotPasswordSerializer(data=params)
+
+        if serializer.is_valid():
+            email = serializer.validated_data.get("email")
+            user = MyUser.objects.filter(email=email).first()
+
+            if user:
+                send_email_to_reset_password.delay(email)
+                success_message = "We have sent you an email. Please reset your password."
+                data = {"error": False, "message": success_message}
+                return Response(data, status=status.HTTP_200_OK)
+            else:
+                error_message = "Invalid user."
+                data = {"error": True, "errors": error_message}
+                response_status = status.HTTP_400_BAD_REQUEST
+                return Response(data, status=response_status)
+
+        else:
+            error_message = serializer.errors
+            data = {"error": True, "errors": error_message}
+            response_status = status.HTTP_400_BAD_REQUEST
+            return Response(data, status=response_status)
+
+
+class ResetPasswordView(APIView):
+    @swagger_auto_schema(request_body=ResetPasswordSerializer())
+    def post(self, request, uid, token, format=None):
+        params = request.data
+        try:
+            uid = force_str(urlsafe_base64_decode(uid))
+            user_obj = MyUser.objects.get(pk=uid)
+            if not user_obj.password and not user_obj.is_active:
+                user_obj.is_active = True
+                user_obj.save()
+        except (TypeError, ValueError, OverflowError, MyUser.DoesNotExist):
+            user_obj = None
+
+        if user_obj:
+            password1 = params.get("new_password1")
+            password2 = params.get("new_password2")
+            if password1 != password2:
+                error_message = "The two password fields didn't match."
+                return Response({"error": True, "errors": error_message}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                user_obj.set_password(password1)
+                user_obj.save()
+                success_message = "Password Updated Successfully. Please login."
+                return Response({"error": False, "message": success_message}, status=status.HTTP_200_OK)
+        else:
+            error_message = "Invalid Link."
+            return Response({"error": True, "errors": error_message})
 

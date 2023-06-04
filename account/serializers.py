@@ -1,10 +1,11 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 
-from blog.models import Post
-from blog.serializers import PostSerializer
+from blog.models import Post, Favorite
+from blog.serializers import PostSerializer, FavoriteSerializer
 
 from .models import MyUser
-
 
 """сериализатор для регистрации пользователя"""
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -52,6 +53,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         rep= super().to_representation(instance)
         posts = Post.objects.filter(user=instance.id)
         rep["posts"] = PostSerializer(posts, many=True).data
+        favorites = Favorite.objects.filter(user=instance.id)
+        rep["in_favorites"] = FavoriteSerializer(favorites, many=True).data
         return rep
 
 """
@@ -91,3 +94,52 @@ class MyUserSerializer(serializers.ModelSerializer):
                   'group',
                   'status')
 
+
+"""когда забыл пароль"""
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=100)
+
+    def validate(self, data):
+        email = data.get("email")
+        user = MyUser.objects.filter(email=email).last()
+        if not user:
+            raise serializers.ValidationError(
+                "You don't have an account. Please create one."
+            )
+        return data
+
+class CheckTokenSerializer(serializers.Serializer):
+    uidb64_regex = r"[0-9A-Za-z_\-]+"
+    token_regex = r"[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20}"
+    uidb64 = serializers.RegexField(uidb64_regex)
+    token = serializers.RegexField(token_regex)
+    error_message = {"__all__": ("Invalid password reset token")}
+
+    def get_user(self, uidb64):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = MyUser._default_manager.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, MyUser.DoesNotExist):
+            user = None
+        return user
+
+
+"""когда восстанавливаешь пароль"""
+class ResetPasswordSerializer(CheckTokenSerializer):
+    new_password1 = serializers.CharField()
+    new_password2 = serializers.CharField()
+
+    def validate(self, data):
+        self.user = self.get_user(data.get("uid"))
+        if not self.user:
+            raise serializers.ValidationError(self.error_message)
+        is_valid_token = default_token_generator.check_token(
+            self.user, data.get("token")
+        )
+        if not is_valid_token:
+            raise serializers.ValidationError(self.error_message)
+        new_password2 = data.get("new_password2")
+        new_password1 = data.get("new_password1")
+        if new_password1 != new_password2:
+            raise serializers.ValidationError("The two password fields didn't match.")
+        return new_password2
